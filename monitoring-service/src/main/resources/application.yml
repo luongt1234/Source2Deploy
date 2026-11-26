@@ -57,3 +57,9 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+security:
+  jwt:
+    issuer: ${AUTH_ISSUER:http://localhost:8089}
+    audience: ${AUTH_AUDIENCE:source2deploy-api}
+    jwks-uri: ${AUTH_JWKS_URI:${security.jwt.issuer}/oauth2/jwks}

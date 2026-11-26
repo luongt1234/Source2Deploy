@@ -19,6 +19,14 @@
     <dependencies>
         <dependency>
             <groupId>com.source2deploy</groupId>
+            <artifactId>resource-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.source2deploy</groupId>
             <artifactId>event-contracts</artifactId>
         </dependency>
 

@@ -26,30 +26,14 @@ spring:
               factor: 2
               basedOnPreviousValue: false
 
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowed-origins:
-              - "http://localhost:3000"
-              - "http://localhost:5173"
-              - "http://127.0.0.1:3000"
-              - "http://127.0.0.1:5173"
-            allowed-methods:
-              - GET
-              - POST
-              - PUT
-              - PATCH
-              - DELETE
-              - OPTIONS
-            allowed-headers:
-              - "*"
-            exposed-headers:
-              - "X-Correlation-ID"
-              - "Authorization"
-            allow-credentials: true
-            max-age: 3600
-
       routes:
+        - id: auth-user-api
+          uri: ${AUTH_SERVICE_URL:http://localhost:8089}
+          predicates:
+            - Path=/api/v1/users/me,/api/v1/users/me/permissions
+          filters:
+            - RemoveRequestHeader=Origin
+
         # 1. Project Service
         - id: project-service
           uri: ${PROJECT_SERVICE_URL:http://localhost:8081}
@@ -134,7 +118,7 @@ management:
         include: health,info,metrics,gateway
   endpoint:
     health:
-      show-details: always
+      show-details: never
     gateway:
       enabled: true
 
@@ -144,3 +128,10 @@ logging:
     org.springframework.cloud.gateway: INFO
     com.source2deploy.gateway: DEBUG
     reactor.netty: INFO
+
+security:
+  jwt:
+    issuer: ${AUTH_ISSUER:http://localhost:8089}
+    audience: ${AUTH_AUDIENCE:source2deploy-api}
+    jwks-uri: ${AUTH_JWKS_URI:${security.jwt.issuer}/oauth2/jwks}
+  cors-origins: ${GATEWAY_CORS_ORIGINS:http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173}

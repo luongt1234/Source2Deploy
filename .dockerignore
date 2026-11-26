@@ -1,0 +1,15 @@
+.git
+**/target
+**/.idea
+**/.vscode
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.jks
+**/*.p12
+**/*.keystore
+**/*.log
+**/node_modules
+**/__pycache__
+auth-secrets

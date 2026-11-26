@@ -129,3 +129,6 @@ ehthumbs.db
 ehthumbs_vista.db
 Desktop.ini
 $RECYCLE.BIN/
+
+# Local auth signing material
+/auth-secrets/

@@ -1,26 +1,17 @@
 package com.source2deploy.deployservice.infrastructure.configuration;
 
+import java.util.List;
+
+import com.source2deploy.security.BackendResourceSecurity;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.context.annotation.Import;
 
-@Configuration
-@EnableWebSecurity
+@Configuration(proxyBeanMethods = false)
+@Import(BackendResourceSecurity.class)
 public class SecurityConfig {
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .build();
+    BackendResourceSecurity.Routes protectedRoutes() {
+        return new BackendResourceSecurity.Routes(List.of("/api/v1/deploy/"));
     }
 }

@@ -223,6 +223,8 @@ Source2Deploy/
 │
 ├── gateway-service/
 │
+├── auth-service/
+│
 ├── project-service/
 │
 ├── deployment-service/
@@ -240,7 +242,8 @@ Source2Deploy/
 ├── monitoring-service/
 │
 ├── shared/
-│   └── event-contracts/
+│   ├── event-contracts/
+│   └── resource-security/
 │
 ├── infrastructure/
 │   ├── kafka/
@@ -262,7 +265,7 @@ Source2Deploy/
 - **Docker & Docker Compose**
 
 ### Build the Monorepo
-To compile all microservices, shared event contracts, and run all unit tests:
+Compile the reactor and run unit and PostgreSQL integration tests.
 ```bash
 mvn clean test
 ```
@@ -278,6 +281,7 @@ mvn clean test
    ```
 3. Verify that the services and health checks are up:
    - **API Gateway**: `http://localhost:8080/actuator/health`
+   - **Auth Service**: `http://localhost:8089/actuator/health`
    - **Swagger / OpenAPI**: `http://localhost:8081/swagger-ui.html` (Project Service), `http://localhost:8082/swagger-ui.html` (Deployment Service), etc.
 
 For in-depth details on domain models, event choreography, and Clean Architecture layering, refer to the [Architecture Documentation](docs/architecture.md).
@@ -320,3 +324,7 @@ Source2Deploy aims to provide a unified deployment experience where developers c
 ---
 
 *Note: Source2Deploy is currently under development. The architecture and features described above represent the intended system design and development roadmap, not a claim that every feature has already been implemented.*
+
+## Authentication
+
+Source2Deploy uses OpenID Connect Authorization Code with PKCE for login and bearer JWTs for protected service APIs. See the [Auth Service documentation](docs/auth-service/README.md) for local setup, client provisioning and API access.

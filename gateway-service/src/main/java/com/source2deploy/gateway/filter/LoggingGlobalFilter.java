@@ -7,6 +7,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -37,10 +38,16 @@ public class LoggingGlobalFilter implements GlobalFilter, Ordered {
         final String finalCorrelationId = correlationId;
         long startTime = System.currentTimeMillis();
 
-        // Mutate request to include the correlation ID for downstream services
-        ServerHttpRequest mutatedRequest = request.mutate()
-                .header(CORRELATION_ID_HEADER, finalCorrelationId)
-                .build();
+        // Spring Security supplies read-only request headers after checking the request.
+        HttpHeaders downstreamHeaders = new HttpHeaders();
+        downstreamHeaders.addAll(headers);
+        downstreamHeaders.set(CORRELATION_ID_HEADER, finalCorrelationId);
+        var mutatedRequest = new ServerHttpRequestDecorator(request) {
+            @Override
+            public HttpHeaders getHeaders() {
+                return downstreamHeaders;
+            }
+        };
 
         ServerWebExchange mutatedExchange = exchange.mutate()
                 .request(mutatedRequest)
@@ -52,21 +59,15 @@ public class LoggingGlobalFilter implements GlobalFilter, Ordered {
                 request.getURI().getPath(),
                 request.getRemoteAddress());
 
+        var response = mutatedExchange.getResponse();
+        response.beforeCommit(() -> {
+            response.getHeaders().set(CORRELATION_ID_HEADER, finalCorrelationId);
+            return Mono.empty();
+        });
         return chain.filter(mutatedExchange)
-                .then(Mono.fromRunnable(() -> {
-                    long duration = System.currentTimeMillis() - startTime;
-                    var response = mutatedExchange.getResponse();
-                    
-                    // Add correlation ID header to the client response
-                    response.getHeaders().add(CORRELATION_ID_HEADER, finalCorrelationId);
-
-                    log.info("[{}] <-- {} {} returned {} in {} ms",
-                            finalCorrelationId,
-                            request.getMethod(),
-                            request.getURI().getPath(),
-                            response.getStatusCode(),
-                            duration);
-                }));
+                .doOnSuccess(ignored -> log.info("[{}] <-- {} {} returned {} in {} ms",
+                        finalCorrelationId, request.getMethod(), request.getURI().getPath(),
+                        response.getStatusCode(), System.currentTimeMillis() - startTime));
     }
 
     @Override
