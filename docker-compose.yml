@@ -88,6 +88,7 @@ services:
       DEPLOY_SERVICE_URL: http://deploy-service:8087
       MONITORING_SERVICE_URL: http://monitoring-service:8088
       MONITORING_SERVICE_WS_URL: ws://monitoring-service:8088
+      SOURCE_SERVICE_URL: http://source-service:8089
     depends_on:
       - project-service
       - deployment-service
@@ -259,6 +260,28 @@ services:
     environment:
       SERVER_PORT: 8088
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/monitoring_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - s2d-network
+
+  source-service:
+    build:
+      context: .
+      dockerfile: source-service/Dockerfile
+    container_name: s2d-source-service
+    restart: unless-stopped
+    ports:
+      - "8089:8089"
+    environment:
+      SERVER_PORT: 8089
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/source_db
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092

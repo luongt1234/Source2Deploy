@@ -7,3 +7,4 @@ CREATE DATABASE registry_db;
 CREATE DATABASE infrastructure_db;
 CREATE DATABASE deploy_db;
 CREATE DATABASE monitoring_db;
+CREATE DATABASE source_db;

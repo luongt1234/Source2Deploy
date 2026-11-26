@@ -126,6 +126,14 @@ spring:
           predicates:
             - Path=/ws/monitoring/**
 
+        # 11. Source Service
+        - id: source-service
+          uri: ${SOURCE_SERVICE_URL:http://localhost:8089}
+          predicates:
+            - Path=/api/v1/sources/**
+          filters:
+            - StripPrefix=0
+
 # Actuator monitoring and health check configuration
 management:
   endpoints:

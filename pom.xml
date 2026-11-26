@@ -37,6 +37,7 @@
         <module>infrastructure-service</module>
         <module>deploy-service</module>
         <module>monitoring-service</module>
+        <module>source-service</module>
     </modules>
 
     <dependencyManagement>
